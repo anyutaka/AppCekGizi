@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {View, StyleSheet, Text, ScrollView, ImageBackground} from 'react-native';
 //import WallpaperImage from './src/wallpaper/wp.jpg';
 import {
@@ -11,7 +11,58 @@ import {
 } from 'iconsax-react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
-export default function App() {
+
+function Circle({ number, circleColor, circleSize }) {
+  return (
+    <View style={[styles.circle, { backgroundColor: circleColor, width: circleSize, height: circleSize }]}>
+      <Text style={{ color: 'white', fontSize: 30, bottom: 1 }}>
+        {String(number)}
+      </Text>
+    </View>
+  );
+}
+
+function HorizontalScrollView({ circleProps }) {
+  return (
+    <ScrollView horizontal>
+      {[...Array(31).keys()].map((number) => (
+        <Circle key={number.toString()} number={number + 1} {...circleProps} />
+      ))}
+    </ScrollView>
+  );
+}
+
+function ImageComponent({ text }) {
+  return (
+    <View style={styles.small}>
+      <Text style={{ textAlign: 'center', textAlignVertical: 'center', justifyContent: 'center', color: 'black', fontSize: 24 }}>
+        {text}
+      </Text>
+    </View>
+  );
+}
+
+function ColumnContainer({ data }) {
+  return (
+    <View style={styles.columnContainer}>
+      {data.map((text, index) => (
+        <ImageComponent key={index.toString()} text={text} />
+      ))}
+    </View>
+  );
+}
+
+export default function App(props) {
+  const circleProps = {
+    circleColor: '#9DC08B',
+    circleSize: 66,
+  };
+  const [imageData, setImageData] = useState([
+    ['Gambar sayur 1', 'Gambar sayur 3'],
+    ['Gambar sayur 2', 'Gambar sayur 4'],
+    ['Gambar sayur 5', 'Gambar sayur 7'],
+    ['Gambar sayur 6', 'Gambar sayur 8'],
+  ]);
   return (
     <View style={styles.container}>
       {/* <ImageBackground source={WallpaperImage} style={styles.wallpaper} /> */}
@@ -41,142 +92,14 @@ export default function App() {
           style={{ justifyContent: 'center', color: 'black', fontSize: 24, left: 5, bottom: 10 }}>
           Agustus
         </Text>
-        <ScrollView horizontal>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>1</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>2</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>3</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>4</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>5</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>6</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>7</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>8</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>9</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>10</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>11</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>12</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>13</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>14</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>15</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>16</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>17</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>18</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>19</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>20</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>21</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>22</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>23</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>24</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>25</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>26</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>27</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>28</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>29</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>30</Text>
-          </View>
-          <View style={styles.circle}>
-            <Text style={{color: 'white', fontSize: 30, bottom: 1}}>31</Text>
-          </View>
-        </ScrollView>
+        <HorizontalScrollView circleProps={circleProps} />
       </View>
+      
       <ScrollView style={styles.containerMid}>
-        <View style={styles.columnContainer}>
-          {/* 1 */}
-          <View style={styles.column}>
-            <View style={styles.small}> 
-            <Text style={{ textAlign:'center',textAlignVertical:'center',justifyContent:'center' , color: 'black', fontSize: 24 }}>Gambar sayur 1</Text>
-            </View>
-            <View style={styles.small}> 
-            <Text style={{ textAlign:'center',textAlignVertical:'center',justifyContent:'center' , color: 'black', fontSize: 24 }}>Gambar sayur 3</Text>
-            </View>
-          </View>
-          {/* 2 */}
-          <View style={styles.column}>
-            <View style={styles.small}> 
-            <Text style={{ textAlign:'center',textAlignVertical:'center',justifyContent:'center' , color: 'black', fontSize: 24 }}>Gambar sayur 2</Text>
-            </View>
-            <View style={styles.small}> 
-            <Text style={{ textAlign:'center',textAlignVertical:'center',justifyContent:'center' , color: 'black', fontSize: 24 }}>Gambar sayur 4</Text>
-            </View>
-          </View>
-        </View>
-        <View style={styles.columnContainer}>
-          <View style={styles.column}>
-            <View style={styles.small}> 
-            <Text style={{ textAlign:'center',textAlignVertical:'center',justifyContent:'center' , color: 'black', fontSize: 24 }}>Gambar sayur 5</Text>
-            </View>
-            <View style={styles.small}> 
-            <Text style={{ textAlign:'center',textAlignVertical:'center',justifyContent:'center' , color: 'black', fontSize: 24 }}>Gambar sayur 7</Text>
-            </View>
-          </View>
-          <View style={styles.column}>
-            <View style={styles.small}> 
-            <Text style={{ textAlign:'center',textAlignVertical:'center',justifyContent:'center' , color: 'black', fontSize: 24 }}>Gambar sayur 6</Text>
-            </View>
-            <View style={styles.small}> 
-            <Text style={{ textAlign:'center',textAlignVertical:'center',justifyContent:'center' , color: 'black', fontSize: 24 }}>Gambar sayur 8</Text>
-            </View>
-          </View>
-        </View>
-      </ScrollView>
+      {imageData.map((data, index) => (
+        <ColumnContainer key={index.toString()} data={data} />
+      ))}
+    </ScrollView>
 
       <View style={styles.containerBot}>
         <Text
@@ -269,7 +192,7 @@ const styles = StyleSheet.create({
   },
   container2: {
     paddingHorizontal: 9,
-    paddingVertical: 19,
+    paddingVertical: 15,
     justifyContent: 'space-around',
     backgroundColor: '#FFFFFF',
     height: 125,
