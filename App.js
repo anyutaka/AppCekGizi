@@ -1,10 +1,11 @@
 import * as React from 'react';
-import {HomeScreen} from './src/screens/Index';
-// import SettingScreen from './src/screens/setting/SettingScreen';
-// import ProfileScreen from './src/screens/profile/ProfileScreen';
+import Router from './src/navigation/Router';
+import { NavigationContainer } from '@react-navigation/native';
 
 export default function App() {
-  return <HomeScreen />;
-  // return <SettingScreen />;
-  // return <ProfileScreen />;
+  return (
+    <NavigationContainer>
+     <Router/>
+    </NavigationContainer>
+  );
 }
