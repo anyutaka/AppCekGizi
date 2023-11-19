@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SearchNormal, } from 'iconsax-react-native';
 
@@ -142,17 +142,6 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 4,
   },
-  footer: {
-    paddingHorizontal: 9,
-    paddingVertical: 19,
-    justifyContent: 'space-evenly',
-    alignContent: 'space-between',
-    backgroundColor: '#004D47',
-    height: 70,
-    margin: 12,
-    marginBottom: -1,
-    marginHorizontal: 0,
-  },
   searchBar: {
     paddingHorizontal: 1,
     justifyContent: 'space-around',
@@ -169,10 +158,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-between',
     // backgroundColor:'red',
-  },
-  columnContainerF: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
   },
   listFood: {
     paddingVertical: 10,
@@ -199,13 +184,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
   },
-  large: {
-    width: 300,
-    height: 300,
-    marginBottom: 10,
-    marginRight: 10,
-    backgroundColor: '#128777',
-  },
   circle: {
     width: 66,
     height: 61,
@@ -216,19 +194,5 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  total: {
-    width: 88,
-    height: 61,
-    // backgroundColor: '#F1F1F1',
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ButtonBack: {
-    backgroundColor: '#F1F1F1',
-    borderRadius: 30,
-    justifyContent: 'center',
-    color: 'black',
   },
 });
