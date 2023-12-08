@@ -1,13 +1,8 @@
-import React, {useState} from 'react';
-import {
-  View,
-  StyleSheet,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
+import React, {useState, useCallback} from 'react';
+import { View, StyleSheet, Text, ScrollView, TouchableOpacity, RefreshControl, Image, } from 'react-native';
 import {SearchNormal, Edit} from 'iconsax-react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import axios from 'axios';
 
 function Circle({number, circleColor, circleSize}) {
   return (
@@ -33,73 +28,58 @@ function HorizontalScrollView({circleProps}) {
   );
 }
 
-function NutritionRow({label, value}) {
+const FoodBox = ({item}) => {
+  const navigation = useNavigation();
   return (
-    <View style={styles.nutritionRow}>
-      <Text style={styles.nutritionLabel}>{label}:</Text>
-      <View style={styles.nutritionValueContainer}>
-        <Text style={styles.nutritionText}>{value}</Text>
-        <Text style={styles.nutritionUnit}>g</Text>
-      </View>
-    </View>
-  );
-}
-
-function ImageComponent({id, text, nutritionData}) {
-  return (
-    <View style={styles.MidPic}>
-      <TouchableOpacity
-        onPress={() => console.log(`Image clicked with ID: ${id}`)}>
-        <Text style={{textAlign: 'center', color: 'black', fontSize: 24}}>
-          {text}
-        </Text>
-      </TouchableOpacity>
-      {nutritionData ? (
-        <View style={styles.nutritionInfo}>
-          <NutritionRow label="Kalori" value={`${nutritionData.kalori}`} />
-          <NutritionRow label="Lemak" value={`${nutritionData.lemak}`} />
-          <NutritionRow label="Karb." value={`${nutritionData.karbohidrat}`} />
-          <NutritionRow label="Protein" value={`${nutritionData.protein}`} />
+    <TouchableOpacity
+      style={styles.box}
+      onPress={() => navigation.navigate('DetailFood', {foodId: item.id})}>
+      <View style={styles.foodInfo}>
+        <Image source={{uri: item.image}} style={styles.foodPic} />
+        <View style={styles.textContainer}>
+          <Text style={styles.title}>{item.title}</Text>
+          <Text style={styles.composition}>{item.composition}</Text>
         </View>
-      ) : (
-        <Text style={{textAlign: 'center', color: 'black', fontSize: 16}}>
-          Anda belum menambahkan makanan
-        </Text>
-      )}
-    </View>
+      </View>
+    </TouchableOpacity>
   );
-}
-
-function ColumnContainer({data}) {
-  return (
-    <View style={styles.columnContainerM}>
-      {data.map(item => (
-        <ImageComponent key={item.id} id={item.id} text={item.text} />
-      ))}
-    </View>
-  );
-}
+};
 
 const HomeScreen = () => {
-  const [currentScreen, setCurrentScreen] = useState('Home');
-
-  const navigation = useNavigation();
-
-  const openSettingScreen = () => {
-    setCurrentScreen('Setting');
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [foodData, setDataFood] = useState([]);
+  const getDataFood = async () => {
+    try {
+      const response = await axios.get(
+        'https://6572a037d61ba6fcc01545d7.mockapi.io/food',
+      );
+      setDataFood(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
   };
+  const navigation = useNavigation();
 
   const circleProps = {
     circleColor: '#9DC08B',
     circleSize: 66,
   };
 
-  const [imageData, setImageData] = useState([
-    {id: 1, text: 'Breakfast'},
-    {id: 2, text: 'Lunch'},
-    {id: 3, text: 'Dinner'},
-    {id: 4, text: 'Snack'},
-  ]);
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      getDataFood();
+      setRefreshing(false);
+    }, 1500);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      getDataFood();
+    }, []),
+  );
 
   return (
     <View style={styles.container}>
@@ -134,11 +114,19 @@ const HomeScreen = () => {
         <HorizontalScrollView circleProps={circleProps} />
       </View>
 
-      <ScrollView style={styles.containerMid}>
-        <ColumnContainer data={imageData} />
+      <ScrollView
+        style={styles.containerMid}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
+        {loading ? (
+          <ActivityIndicator size="large" color="#3557e1" />
+        ) : (
+          foodData.map((item, index) => <FoodBox key={index} item={item} />)
+        )}
       </ScrollView>
       <TouchableOpacity
-        style={styles.floatingButton}
+        style={styles.AddBtn}
         onPress={() => navigation.navigate('AddFood')}>
         <Edit color="#fff" variant="Linear" size={20} />
       </TouchableOpacity>
@@ -147,7 +135,7 @@ const HomeScreen = () => {
 };
 
 export default HomeScreen;
-//////////////////////////////////////////////////////// CSS ////////////////////////////////////////////////////////
+////////////////////////////// CSS //////////////////////////////
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -180,15 +168,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 30,
   },
-  columnContainerM: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    // backgroundColor:'red',
-  },
-  listFood: {
-    paddingVertical: 10,
-    gap: 10,
-  },
   container2: {
     paddingHorizontal: 15,
     paddingVertical: 15,
@@ -201,15 +180,6 @@ const styles = StyleSheet.create({
     padding: 0,
     borderRadius: 10,
   },
-  MidPic: {
-    width: 400,
-    height: 131, // Sesuaikan tinggi untuk menampung info nutrisi
-    marginBottom: 10,
-    marginHorizontal: 5,
-    borderRadius: 10,
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-  },
   circle: {
     width: 66,
     height: 61,
@@ -221,14 +191,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  floatingButton: {
-    backgroundColor:"#49c44f",
+  AddBtn: {
+    backgroundColor: '#004D47',
     padding: 15,
     position: 'absolute',
     bottom: 24,
     right: 24,
     borderRadius: 10,
-    shadowColor:"#49c44f",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -237,5 +207,42 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
 
     elevation: 8,
+  },
+  box: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10,
+    marginHorizontal: 15,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    marginHorizontal: 5,
+    marginVertical: 15,
+  },
+  foodInfo: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  foodPic: {
+    backgroundColor: '#eee',
+    borderRadius: 10,
+    padding: 10,
+    width: 120,
+    height: 120,
+  },
+  textContainer: {
+    marginLeft: 10,
+    alignItems: 'flex-start',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'black',
+    marginTop: 5,
+  },
+  composition: {
+    fontSize: 16,
+    color: 'black',
+    marginTop: 5,
   },
 });

@@ -1,48 +1,67 @@
-import React, {useState} from 'react';
-import { View, StyleSheet, Text, ScrollView, TouchableOpacity, TextInput, Image, } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import { View, StyleSheet, Text, ScrollView, TouchableOpacity, TextInput, Image, ActivityIndicator } from 'react-native';
 import {ArrowLeft} from 'iconsax-react-native';
 import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 
-const AddFood = () => {
-  const [loading, setLoading] = useState(false);
-
-  const handleUpload = async () => {
-    setLoading(true);
-    try {
-      await axios.post('https://6572a037d61ba6fcc01545d7.mockapi.io/food', {
-          title: dataFood.title,
-          composition: dataFood.composition,
-          image,
-          description: dataFood.description,
-          createdAt: new Date(),
-        })
-        .then(function (response) {
-          console.log(response);
-        })
-        .catch(function (error) {
-          console.log(error);
+const EditFood = ({route}) => {
+    const navigation = useNavigation();
+    const { foodId } = route.params;
+    const [dataFood, setDataFood] = useState({
+      title: "",
+      composition: "",
+      description: "",
+    });
+    const [image, setImage] = useState(null);
+    const [loading, setLoading] = useState(true);
+  
+    useEffect(() => {
+      getfoodId();
+    }, [foodId]);
+  
+    const getfoodId = async () => {
+      try {
+        const response = await axios.get(
+        `https://6572a037d61ba6fcc01545d7.mockapi.io/food/${foodId}`,
+        );
+        setDataFood({
+          title: response.data.title,
+          composition: response.data.composition,
+          description: response.data.description,
         });
-      setLoading(false);
-      navigation.navigate('HomeScreen');
-    } catch (e) {
-      console.log(e);
-    }
-  };
-  const [dataFood, setDataFood] = useState({
-    title: "",
-    composition: "",
-    description: "",
-});
-const handleChange = (key, value) => {
-    setDataFood({
+  
+        setImage(response.data.image);
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+  
+    const handleChange = (key, value) => {
+      setDataFood({
         ...dataFood,
         [key]: value,
-    });
-};
-const [image, setImage] = useState(null);
-
-  const navigation = useNavigation();
+      });
+    };
+  
+    const handleUpdate = async () => {
+      setLoading(true);
+      try {
+        await axios.put(`https://6572a037d61ba6fcc01545d7.mockapi.io/food/${foodId}`,
+          {
+            title: dataFood.title,
+            composition: dataFood.composition,
+            description: dataFood.description,
+            image: image,
+          }
+        );
+  
+        setLoading(false);
+        navigation.navigate("HomeScreen");
+      } catch (e) {
+        console.log(e);
+      }
+    };
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -101,15 +120,15 @@ const [image, setImage] = useState(null);
               multiline
             />
           </View>
-          <TouchableOpacity style= {form.btnUpload} onPress={handleUpload}>
-            <Text style={form.textBtn}>Upload</Text>
+          <TouchableOpacity style= {form.btnUpdate} onPress={handleUpdate}>
+            <Text style={form.textBtn}>Update</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
   );
 };
-export default AddFood;
+export default EditFood;
 //////////////////////////////////////////////////////// CSS ////////////////////////////////////////////////////////
 const styles = StyleSheet.create({
   container: {
@@ -125,22 +144,6 @@ const styles = StyleSheet.create({
     height: 52,
     paddingTop: 8,
     paddingBottom: 4,
-  },
-  ButtonBack: {
-    backgroundColor: '#F1F1F1',
-    borderRadius: 30,
-    justifyContent: 'center',
-    color: 'black',
-  },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "#000",
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });
 const form = StyleSheet.create({
@@ -189,7 +192,7 @@ const form = StyleSheet.create({
       paddingLeft: 10,
       marginVertical: 4,
     },
-    btnUpload: {
+    btnUpdate: {
       alignSelf: 'center',
       marginTop: 20,
       height: 50,
