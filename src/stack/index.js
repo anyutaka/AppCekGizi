@@ -4,7 +4,7 @@ import {StyleSheet, Text, View, ScrollView ,Animated} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {useNavigation} from '@react-navigation/native';
 
-export default function stackScreen() {
+export default function StackScreen() {
     const navigation = useNavigation()
     const scrollY = useRef(new Animated.Value(0)).current;
     const diffClampY = Animated.diffClamp(scrollY, 0, 52);

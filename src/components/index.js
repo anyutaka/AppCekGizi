@@ -1,2 +1,2 @@
-import ItemSmall from './ItemSmall'
-export {ItemSmall,}
+import SearchBar from './SearchBar'
+export {SearchBar}

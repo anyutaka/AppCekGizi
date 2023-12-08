@@ -2,10 +2,7 @@ import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Home2, LocationDiscover, Setting2, ProfileCircle} from 'iconsax-react-native';
-import HomeScreen from '../screens/home';
-import BFscreen from '../screens/breakfast';
-import ProfileScreen from '../screens/profile';
-import SettingScreen from '../screens/setting';
+import {HomeScreen,BFscreen, ProfileScreen, SettingScreen, Search, AddFood} from '../screens/Index';
 import stackScreen from '../stack';
 
 const Tab = createBottomTabNavigator();
@@ -102,6 +99,22 @@ const Router = () => {
         name="stackScreen"
         component={stackScreen}
         options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Search"
+        component={Search}
+        options={{
+          headerShown: false,
+          presentation: 'transparentModal',
+        }}
+      />
+      <Stack.Screen
+        name="AddFood"
+        component={AddFood}
+        options={{
+          headerShown: false,
+          presentation: 'transparentModal',
+        }}
       />
     </Stack.Navigator>
   );

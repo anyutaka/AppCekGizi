@@ -1,18 +1,29 @@
-import React, { useState} from 'react';
-import { View, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { SearchNormal, } from 'iconsax-react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  StyleSheet,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import {SearchNormal, Edit} from 'iconsax-react-native';
+import {useNavigation} from '@react-navigation/native';
 
-function Circle({ number, circleColor, circleSize }) {
+function Circle({number, circleColor, circleSize}) {
   return (
-    <View style={[styles.circle, { backgroundColor: circleColor, width: circleSize, height: circleSize }]}>
-      <Text style={{ color: 'white', fontSize: 30, bottom: 1 }}>
+    <View
+      style={[
+        styles.circle,
+        {backgroundColor: circleColor, width: circleSize, height: circleSize},
+      ]}>
+      <Text style={{color: 'white', fontSize: 30, bottom: 1}}>
         {String(number)}
       </Text>
     </View>
   );
 }
 
-function HorizontalScrollView({ circleProps }) {
+function HorizontalScrollView({circleProps}) {
   return (
     <ScrollView horizontal>
       {[...Array(31).keys()].map(number => (
@@ -22,7 +33,7 @@ function HorizontalScrollView({ circleProps }) {
   );
 }
 
-function NutritionRow({ label, value }) {
+function NutritionRow({label, value}) {
   return (
     <View style={styles.nutritionRow}>
       <Text style={styles.nutritionLabel}>{label}:</Text>
@@ -34,11 +45,12 @@ function NutritionRow({ label, value }) {
   );
 }
 
-function ImageComponent({ id, text, nutritionData }) {
+function ImageComponent({id, text, nutritionData}) {
   return (
     <View style={styles.MidPic}>
-      <TouchableOpacity onPress={() => console.log(`Image clicked with ID: ${id}`)}>
-        <Text style={{ textAlign: 'center', color: 'black', fontSize: 24 }}>
+      <TouchableOpacity
+        onPress={() => console.log(`Image clicked with ID: ${id}`)}>
+        <Text style={{textAlign: 'center', color: 'black', fontSize: 24}}>
           {text}
         </Text>
       </TouchableOpacity>
@@ -50,7 +62,7 @@ function ImageComponent({ id, text, nutritionData }) {
           <NutritionRow label="Protein" value={`${nutritionData.protein}`} />
         </View>
       ) : (
-        <Text style={{ textAlign: 'center', color: 'black', fontSize: 16 }}>
+        <Text style={{textAlign: 'center', color: 'black', fontSize: 16}}>
           Anda belum menambahkan makanan
         </Text>
       )}
@@ -58,7 +70,7 @@ function ImageComponent({ id, text, nutritionData }) {
   );
 }
 
-function ColumnContainer({ data }) {
+function ColumnContainer({data}) {
   return (
     <View style={styles.columnContainerM}>
       {data.map(item => (
@@ -71,6 +83,8 @@ function ColumnContainer({ data }) {
 const HomeScreen = () => {
   const [currentScreen, setCurrentScreen] = useState('Home');
 
+  const navigation = useNavigation();
+
   const openSettingScreen = () => {
     setCurrentScreen('Setting');
   };
@@ -81,33 +95,40 @@ const HomeScreen = () => {
   };
 
   const [imageData, setImageData] = useState([
-    { id: 1, text: 'Breakfast' },
-    { id: 2, text: 'Lunch' },
-    { id: 3, text: 'Dinner' },
-    { id: 4, text: 'Snack' },
+    {id: 1, text: 'Breakfast'},
+    {id: 2, text: 'Lunch'},
+    {id: 3, text: 'Dinner'},
+    {id: 4, text: 'Snack'},
   ]);
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-
-        <Text style={{ color: 'white', fontSize: 24, fontWeight: 'bold',}}>
+        <Text style={{color: 'white', fontSize: 24, fontWeight: 'bold'}}>
           GizNow
         </Text>
       </View>
-
-      <View style={styles.searchBar}>
-        <Text style={{ color: 'black', left: 137, fontSize: 16 }}>Search...</Text>
+      <TouchableOpacity
+        style={styles.searchBar}
+        onPress={() => navigation.navigate('Search')}>
+        <Text style={{color: 'black', left: 137, fontSize: 16}}>Search...</Text>
         <SearchNormal
           color={'black'}
           variant="Broken"
           size={25}
-          style={{ opacity: 0.9, marginHorizontal: '-34%' }}
+          style={{opacity: 0.9, marginHorizontal: '-34%'}}
         />
-      </View>
+      </TouchableOpacity>
 
       <View style={styles.container2}>
-        <Text style={{ justifyContent: 'center', color: 'black', fontSize: 24, left: 5, bottom: 10 }}>
+        <Text
+          style={{
+            justifyContent: 'center',
+            color: 'black',
+            fontSize: 24,
+            left: 5,
+            bottom: 10,
+          }}>
           Agustus
         </Text>
         <HorizontalScrollView circleProps={circleProps} />
@@ -116,6 +137,11 @@ const HomeScreen = () => {
       <ScrollView style={styles.containerMid}>
         <ColumnContainer data={imageData} />
       </ScrollView>
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => navigation.navigate('AddFood')}>
+        <Edit color="#fff" variant="Linear" size={20} />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -194,5 +220,22 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  floatingButton: {
+    backgroundColor:"#49c44f",
+    padding: 15,
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    borderRadius: 10,
+    shadowColor:"#49c44f",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+
+    elevation: 8,
   },
 });
