@@ -3,7 +3,7 @@ import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {ArrowLeft, More} from 'iconsax-react-native';
 import {useNavigation} from '@react-navigation/native';
 import ActionSheet from 'react-native-actions-sheet';
-import axios from 'axios';
+import firestore from '@react-native-firebase/firestore';
 import FastImage from 'react-native-fast-image';
 
 const DetailFood = ({route}) => {
@@ -22,20 +22,21 @@ const DetailFood = ({route}) => {
   };
 
   useEffect(() => {
-    getfoodId();
+    const subscriber = firestore()
+      .collection('food')
+      .doc(foodId)
+      .onSnapshot(documentSnapshot => {
+        const DataFood = documentSnapshot.data();
+        if (DataFood) {
+          console.log('food data: ', DataFood);
+          setDataFood(DataFood);
+        } else {
+          console.log(`food with ID ${foodId} not found.`);
+        }
+      });
+    setLoading(false);
+    return () => subscriber();
   }, [foodId]);
-
-  const getfoodId = async () => {
-    try {
-      const response = await axios.get(
-        `https://6572a037d61ba6fcc01545d7.mockapi.io/food/${foodId}`,
-      );
-      setDataFood(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const navigateEdit = () => {
     closeActionSheet();
@@ -43,11 +44,19 @@ const DetailFood = ({route}) => {
   };
 
   const handleDelete = async () => {
+    setLoading(true);
     try {
-      await axios.delete(
-        `https://6572a037d61ba6fcc01545d7.mockapi.io/food/${foodId}`,
-      );
+      await firestore()
+        .collection('food')
+        .doc(foodId)
+        .delete()
+        .then(() => {
+          console.log('food deleted!');
+        });
+      console.log('food deleted!');
       closeActionSheet();
+      setDataFood(null);
+      setLoading(false)
       navigation.navigate('HomeScreen');
     } catch (error) {
       console.error(error);

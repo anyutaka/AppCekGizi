@@ -1,8 +1,8 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity, RefreshControl, Image, } from 'react-native';
 import {SearchNormal, Edit} from 'iconsax-react-native';
-import {useNavigation, useFocusEffect} from '@react-navigation/native';
-import axios from 'axios';
+import {useNavigation,} from '@react-navigation/native';
+import firestore from '@react-native-firebase/firestore';
 
 function Circle({number, circleColor, circleSize}) {
   return (
@@ -46,40 +46,50 @@ const FoodBox = ({item}) => {
 };
 
 const HomeScreen = () => {
+  const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [foodData, setDataFood] = useState([]);
-  const getDataFood = async () => {
-    try {
-      const response = await axios.get(
-        'https://6572a037d61ba6fcc01545d7.mockapi.io/food',
-      );
-      setDataFood(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  const navigation = useNavigation();
-
   const circleProps = {
     circleColor: '#9DC08B',
     circleSize: 66,
   };
 
+  useEffect(() => {
+    const subscriber = firestore()
+      .collection('food')
+      .onSnapshot(querySnapshot => {
+        const foods = [];
+        querySnapshot.forEach(documentSnapshot => {
+          foods.push({
+            ...documentSnapshot.data(),
+            id: documentSnapshot.id,
+          });
+        });
+        setDataFood(foods);
+        setLoading(false);
+      });
+    return () => subscriber();
+  }, []);
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     setTimeout(() => {
-      getDataFood();
+      firestore()
+        .collection('food')
+        .onSnapshot(querySnapshot => {
+          const foods = [];
+          querySnapshot.forEach(documentSnapshot => {
+            foods.push({
+              ...documentSnapshot.data(),
+              id: documentSnapshot.id,
+            });
+          });
+          setDataFood(foods);
+        });
       setRefreshing(false);
     }, 1500);
   }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      getDataFood();
-    }, []),
-  );
 
   return (
     <View style={styles.container}>
@@ -99,7 +109,6 @@ const HomeScreen = () => {
           style={{opacity: 0.9, marginHorizontal: '-34%'}}
         />
       </TouchableOpacity>
-
       <View style={styles.container2}>
         <Text
           style={{
@@ -113,7 +122,6 @@ const HomeScreen = () => {
         </Text>
         <HorizontalScrollView circleProps={circleProps} />
       </View>
-
       <ScrollView
         style={styles.containerMid}
         refreshControl={
@@ -135,7 +143,6 @@ const HomeScreen = () => {
 };
 
 export default HomeScreen;
-////////////////////////////// CSS //////////////////////////////
 const styles = StyleSheet.create({
   container: {
     flex: 1,

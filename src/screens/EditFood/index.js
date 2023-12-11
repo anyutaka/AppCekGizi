@@ -1,8 +1,11 @@
 import React, {useState, useEffect} from 'react';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity, TextInput, Image, ActivityIndicator } from 'react-native';
-import {ArrowLeft} from 'iconsax-react-native';
+import {ArrowLeft, AddSquare, Add} from 'iconsax-react-native';
 import {useNavigation} from '@react-navigation/native';
-import axios from 'axios';
+import ImagePicker from 'react-native-image-crop-picker';
+import storage from '@react-native-firebase/storage';
+import firestore from '@react-native-firebase/firestore';
+import FastImage from 'react-native-fast-image';
 
 const EditFood = ({route}) => {
     const navigation = useNavigation();
@@ -13,28 +16,48 @@ const EditFood = ({route}) => {
       description: "",
     });
     const [image, setImage] = useState(null);
+    const [oldImage, setOldImage] = useState(null)
     const [loading, setLoading] = useState(true);
   
     useEffect(() => {
-      getfoodId();
+      const subscriber = firestore()
+        .collection('food')
+        .doc(foodId)
+        .onSnapshot(documentSnapshot => {
+          const dataFood = documentSnapshot.data();
+          if (dataFood) {
+            console.log('food data: ', dataFood);
+            setDataFood({
+              title: dataFood.title,
+        composition: dataFood.composition,
+        image,
+        description: dataFood.description,
+        createdAt: new Date(),
+            });
+            setOldImage(dataFood.image);
+            setImage(dataFood.image);
+            setLoading(false);
+          } else {
+            console.log(`food with ID ${foodId} not found.`);
+          }
+        });
+      setLoading(false);
+      return () => subscriber();
     }, [foodId]);
   
-    const getfoodId = async () => {
-      try {
-        const response = await axios.get(
-        `https://6572a037d61ba6fcc01545d7.mockapi.io/food/${foodId}`,
-        );
-        setDataFood({
-          title: response.data.title,
-          composition: response.data.composition,
-          description: response.data.description,
+    const handleImagePick = async () => {
+      ImagePicker.openPicker({
+        width: 1920,
+        height: 1080,
+        cropping: true,
+      })
+        .then(image => {
+          console.log(image);
+          setImage(image.path);
+        })
+        .catch(error => {
+          console.log(error);
         });
-  
-        setImage(response.data.image);
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
-      }
     };
   
     const handleChange = (key, value) => {
@@ -46,20 +69,32 @@ const EditFood = ({route}) => {
   
     const handleUpdate = async () => {
       setLoading(true);
+      let filename = image.substring(image.lastIndexOf('/') + 1);
+      const extension = filename.split('.').pop();
+      const name = filename.split('.').slice(0, -1).join('.');
+      filename = name + Date.now() + '.' + extension;
+      const reference = storage().ref(`foodimages/${filename}`);
       try {
-        await axios.put(`https://6572a037d61ba6fcc01545d7.mockapi.io/food/${foodId}`,
-          {
-            title: dataFood.title,
-            composition: dataFood.composition,
-            description: dataFood.description,
-            image: image,
-          }
-        );
-  
+        if (image !== oldImage && oldImage) {
+          const oldImageRef = storage().refFromURL(oldImage);
+          await oldImageRef.delete();
+        }
+        if (image !== oldImage) {
+          await reference.putFile(image);
+        }
+        const url =
+          image !== oldImage ? await reference.getDownloadURL() : oldImage;
+        await firestore().collection('food').doc(foodId).update({
+          title: dataFood.title,
+          composition: dataFood.composition,
+          image: url,
+          description: dataFood.description,
+        });
         setLoading(false);
-        navigation.navigate("HomeScreen");
-      } catch (e) {
-        console.log(e);
+        console.log('food Updated!');
+        navigation.navigate('DetailFood', {foodId});
+      } catch (error) {
+        console.log(error);
       }
     };
   return (
@@ -102,15 +137,57 @@ const EditFood = ({route}) => {
               multiline
             />
           </View>
-          <View style={form.imageBox}>
-            <TextInput style={form.TextInput}
-              placeholder="Image"
-              value={image}
-              onChangeText={text => setImage(text)}
-              placeholderTextColor={"#000"}
-              multiline
+          {image ? (
+          <View style={{position: 'relative'}}>
+            <FastImage
+              style={{width: '100%', height: 127, borderRadius: 5}}
+              source={{
+                uri: image,
+                headers: {Authorization: 'someAuthToken'},
+                priority: FastImage.priority.high,
+              }}
+              resizeMode={FastImage.resizeMode.cover}
             />
+            <TouchableOpacity
+              style={{
+                position: 'absolute',
+                top: -5,
+                right: -5,
+                backgroundColor: 'green',
+                borderRadius: 25,
+              }}
+              onPress={() => setImage(null)}>
+              <Add
+                size={20}
+                variant="Linear"
+                color='white'
+                style={{transform: [{rotate: '45deg'}]}}
+              />
+            </TouchableOpacity>
           </View>
+        ) : (
+          <TouchableOpacity onPress={handleImagePick}>
+            <View
+              style={[
+                styles.borderDashed,
+                {
+                  gap: 10,
+                  paddingVertical: 30,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                },
+              ]}>
+              <AddSquare color="grey" variant="Linear" size={42} />
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: "grey",
+                }}>
+                Edit Image
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
           <View style={form.descriptionBox}>
             <TextInput style={form.TextInput}
               placeholder="Description"
@@ -144,6 +221,13 @@ const styles = StyleSheet.create({
     height: 52,
     paddingTop: 8,
     paddingBottom: 4,
+  },
+  borderDashed: {
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    borderColor: 'grey',
   },
 });
 const form = StyleSheet.create({
@@ -186,7 +270,7 @@ const form = StyleSheet.create({
     descriptionBox: {
       marginTop: 5,
       backgroundColor: '#9DC08B',
-      height: 500,
+      height: 430,
       width: '100%',
       borderRadius: 10,
       paddingLeft: 10,

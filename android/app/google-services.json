@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1033619356677",
+    "project_id": "giznow-5d355",
+    "storage_bucket": "giznow-5d355.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1033619356677:android:0675d32020daf1af7b706c",
+        "android_client_info": {
+          "package_name": "com.appcekgizi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUH3Y1An-65So2IdZUlPpajTdMZjKLprI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
