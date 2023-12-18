@@ -6,8 +6,11 @@ import {useNavigation} from '@react-navigation/native';
 import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 
 const AddFood = () => {
+  const authorId = auth().currentUser.uid;
+  const navigation = useNavigation();
   const handleImagePick = async () => {
     ImagePicker.openPicker({
       width: 1920,
@@ -42,6 +45,7 @@ const AddFood = () => {
         image,
         description: dataFood.description,
         createdAt: new Date(),
+        authorId,
       });
       setLoading(false);
       console.log('Food added!');
@@ -63,7 +67,6 @@ const AddFood = () => {
   };
   const [image, setImage] = useState(null);
 
-  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -177,7 +180,6 @@ const AddFood = () => {
   );
 };
 export default AddFood;
-//////////////////////////////////////////////////////// CSS ////////////////////////////////////////////////////////
 const styles = StyleSheet.create({
   container: {
     flex: 1,

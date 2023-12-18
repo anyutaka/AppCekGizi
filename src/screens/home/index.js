@@ -1,8 +1,11 @@
-import React, {useState, useCallback, useEffect} from 'react';
+import React, {useState, useCallback, useEffect, useRef} from 'react';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity, RefreshControl, Image, } from 'react-native';
-import {SearchNormal, Edit} from 'iconsax-react-native';
+import {SearchNormal, Edit, More} from 'iconsax-react-native';
 import {useNavigation,} from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
+import ActionSheet from 'react-native-actions-sheet';
+import auth from '@react-native-firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function Circle({number, circleColor, circleSize}) {
   return (
@@ -29,7 +32,9 @@ function HorizontalScrollView({circleProps}) {
 }
 
 const FoodBox = ({item}) => {
+  const authorId = auth().currentUser.uid;
   const navigation = useNavigation();
+
   return (
     <TouchableOpacity
       style={styles.box}
@@ -54,22 +59,48 @@ const HomeScreen = () => {
     circleColor: '#9DC08B',
     circleSize: 66,
   };
+  const actionSheetRef = useRef(null);
+
+  const openActionSheet = () => {
+    actionSheetRef.current?.show();
+  };
+
+  const closeActionSheet = () => {
+    actionSheetRef.current?.hide();
+  };
+
+  const handleLogout = async () => {
+    try {
+      closeActionSheet();
+      await auth().signOut();
+      await AsyncStorage.removeItem('userData');
+      navigation.replace('SplashScreen');
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
-    const subscriber = firestore()
-      .collection('food')
-      .onSnapshot(querySnapshot => {
-        const foods = [];
-        querySnapshot.forEach(documentSnapshot => {
-          foods.push({
-            ...documentSnapshot.data(),
-            id: documentSnapshot.id,
-          });
+    const fetchBlogData = () => {
+      try {
+        const blogCollection = firestore().collection('food');
+        const unsubscribeBlog = blogCollection.onSnapshot(querySnapshot => {
+          const foods = querySnapshot.docs.map(doc => ({
+            ...doc.data(),
+            id: doc.id,
+          }));
+          setDataFood(foods);
+          setLoading(false);
         });
-        setDataFood(foods);
-        setLoading(false);
-      });
-    return () => subscriber();
+
+        return () => {
+          unsubscribeBlog();
+        };
+      } catch (error) {
+        console.error('Error fetching blog data:', error);
+      }
+    };
+    fetchBlogData();
   }, []);
 
   const onRefresh = useCallback(() => {
@@ -94,9 +125,15 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={{color: 'white', fontSize: 24, fontWeight: 'bold'}}>
+        <Text style={{color: 'white', fontSize: 24, fontWeight: 'bold',marginLeft:70,}}>
           GizNow
         </Text>
+        <View style={styles.notifIcon}>
+          <TouchableOpacity
+            onPress={openActionSheet}>
+            <More size={25} color="white" variant="Broken" />
+          </TouchableOpacity>
+        </View>
       </View>
       <TouchableOpacity
         style={styles.searchBar}
@@ -138,6 +175,48 @@ const HomeScreen = () => {
         onPress={() => navigation.navigate('AddFood')}>
         <Edit color="#fff" variant="Linear" size={20} />
       </TouchableOpacity>
+      <ActionSheet
+        ref={actionSheetRef}
+        containerStyle={{
+          borderTopLeftRadius: 25,
+          borderTopRightRadius: 25,
+        }}
+        indicatorStyle={{
+          width: 100,
+        }}
+        gestureEnabled={true}
+        defaultOverlayOpacity={0.3}>
+        <TouchableOpacity
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingVertical: 15,
+          }}
+          onPress={handleLogout}>
+          <Text
+            style={{
+              color: 'black',
+              fontSize: 18,
+            }}>
+            Log out
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingVertical: 15,
+          }}
+          onPress={closeActionSheet}>
+          <Text
+            style={{
+              color: 'red',
+              fontSize: 18,
+            }}>
+            Cancel
+          </Text>
+        </TouchableOpacity>
+      </ActionSheet>
     </View>
   );
 };
@@ -251,5 +330,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'black',
     marginTop: 5,
+  },
+  notifIcon: {
+    marginRight: -85,
   },
 });

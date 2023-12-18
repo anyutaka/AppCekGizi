@@ -7,4 +7,7 @@ import Search from './search';
 import AddFood from './AddFood';
 import DetailFood from './DetailFood';
 import EditFood from './EditFood';
-export {HomeScreen, BFscreen, ProfileScreen, SettingScreen, stackScreen, Search, AddFood, DetailFood, EditFood};
+import Login from "./Login";
+import Register from "./Register";
+import SplashScreen from "./SplashScreen"
+export {HomeScreen, BFscreen, ProfileScreen, SettingScreen, stackScreen, Search, AddFood, DetailFood, EditFood, Login, Register, SplashScreen};
